@@ -1,0 +1,150 @@
+{\rtf1\ansi\ansicpg1252\deff0\deflang2060{\fonttbl{\f0\fnil\fcharset0 MS Sans Serif;}{\f1\fnil\fcharset0 Arial;}{\f2\fnil Arial;}{\f3\fswiss\fcharset0 Arial;}}
+{\colortbl ;\red0\green0\blue0;\red0\green0\blue255;}
+{\*\generator Msftedit 5.41.15.1515;}\viewkind4\uc1\pard\b\f0\fs28 TZSIMAGE\cf1\b0\f1\fs20\par
+\par
+\cf2\b\f0\fs24 Description\cf1\b0\f1\fs20\par
+\par
+Composant conteneur d'une image bitmap.\par
+OrigBitmap contient de fa\'e7on permanente l'image originale.\par
+CanvasBitmap contient l'image "stretch\'e9e" selon la propri\'e9t\'e9 StretchFactor.\par
+A noter que CanvasBitmap a toujours la taille du composant (en ce compris les marges \'e9ventuelles). Ainsi, en cas d'agrandissement p.ex \'e0 500%, seule la partie visible \'e0 l'\'e9cran est agrandie. Ce qui \'e9conomise de la m\'e9moire.\par
+Possibilit\'e9 de faire "d\'e9filer" une image agrandie avec touche Space + bouton gauche. En fait il n'y a pas de d\'e9filement mais un restretching.\par
+Loupe : clic gauche + (move \'e9ventuel). Seul le Canvas du compo est modifi\'e9. L'affichage revient \'e0 son \'e9tat au relachement du bouton de souris.\par
+Outil de s\'e9lection.\par
+SlideShow avec ou sans effets de transition.\par
+Le composant TMinNavigation peut \'eatre li\'e9 \'e0 un TZSImage pour la navigation dans une image agrandie (cfr photoshop).\par
+\par
+\cf2\b\f0\fs24 Cr\'e9ation, propri\'e9t\'e9s et chargement d'image\par
+\cf1\b0\f1\fs20\par
+\b constructor Create\b0 (AOwner: TComponent)\par
+\b BkgColor\b0  : d\'e9finit la couleur du fond de l'image. Remarque: en cas d'utilisation d'effets slideshow, la couleur du parent doit \'eatre la m\'eame.\par
+\b Margin \b0 : d\'e9finit les marges gauche, haute, droite et basse lorsque l'image ne remplira pas tout le composant.\par
+\b BorderColor\b0  : couleur de l'encadrement de l'image\par
+\b BorderWidth \b0 : \'e9paisseur en pixels de l'encadrement (0 : pas de contour)\par
+Remarque : pour pouvoir dessiner une bordure, il faut que Margin >= BorderWidth.\par
+\b StretchFactor\b0  = facteur du stretching : \par
+\tab 0 = affichage complet adapt\'e9 \'e0 la taille du composant (moins les marges \'e9ventuelles)\par
+\tab 0.5 = affichage \'e0 50%\par
+\tab 1 = 100%\par
+\tab 2 = 200%\par
+\tab ...\par
+\b Enlarge\b0 : false = pas d'agrandissement de l'image d'origine si celle-ci est plus petite que la taille du composant (ceci n'est valable que lorsque StretchFactor = 0)\par
+\par
+\b KeyToScroll\b0  : permet de modifier la touche pour le d\'e9filement (Space par d\'e9faut). Remarque : avec Space, il faut \'e9videmment bloquer les autres composants qui r\'e9agissent \'e0 cette touche (boutons...).\par
+  \par
+\b chargement d'une image \'e0 partir d'un fichier :\par
+\b0 procedure SetImage(FileName: string);\par
+\par
+\b chargement d'une image \'e0 partir d'un autre bitmap :\par
+\b0 procedure SetImage(Source: TPersistent);\par
+\par
+Dans les 2 cas, l'image est charg\'e9e dans OrigBitmap et "stretch\'e9e" dans CanvasBitmap, puis affich\'e9e.\par
+\par
+\b chargement de x images\b0  : voir ci-dessous l'outil SlideShow\par
+\par
+\b Propri\'e9t\'e9 CanvasBitmapRect\b0  : renseigne sur la position de l'image dans le composant (c.\'e0.d. sans les marges ni la bordure).\par
+\b Propri\'e9t\'e9 OrigBitmapRect\b0  : partie de l'image originale qui est affich\'e9e.\par
+\par
+\b procedure ResizeImage \b0 : recadre l'image en fonction de la s\'e9lection.\par
+\par
+\par
+\b function GetSelection(var AOrigRect, AStretchRect: TRect): boolean \b0 :\par
+renvoie true si une s\'e9lection existe.\par
+AOrigRect = les coordonn\'e9es de la s\'e9lection par rapport \'e0 l'image originale.\par
+AStretchRect = les coordonn\'e9es de la s\'e9lection par rapport \'e0 l'image stretch\'e9e.\par
+\par
+\b procedure UpdateRect(AOrigRect, AStretchRect: TRect) \b0 :\par
+permet de mettre \'e0 jour partiellement l'image stretch\'e9e (CanvasBitmap). Les coordonn\'e9es ont \'e9t\'e9 obtenues par GetSelection.\par
+Remarque : le stretch limit\'e9 \'e0  AOrigRect peut parfois \'eatre impr\'e9cis. Si la rapidit\'e9 d'affichage n'est pas un crit\'e8re, il est pr\'e9f\'e9rable de refaire un stretch total (StretchImage).\par
+\par
+\b procedure StretchImage \b0 : provoque la reconstruction de CanvasBitmap.\par
+\b procedure StretchImage(ACenter: TPoint) \b0 : restretching \'e0 partir d'un point donn\'e9 comme centre.\par
+\par
+\b procedure Clear \b0 : effacement des images contenues dans OrigBitmap et CanvasBitmap + clear total de SlideShow. \par
+\par
+\par
+\cf2\b\f0\fs24 Loupe\par
+\cf1\b0\f1\fs20\par
+\b MagnifierActivated: boolean\b0  : permet d'activer ou non la loupe.\par
+\b MagnifierFactor\b0  : r\'e9gle le facteur d'agrandissement :1 = 100%, 0.5 = 50%...\par
+\b MagnifierSize\b0  : si = 0 : la loupe agit sur tout l'\'e9cran, sinon cela d\'e9finit le diam\'e8tre de la loupe en pixels.\par
+\b MagnifierCursor\b0  : curseur lorsque la loupe est active.\par
+Remarque : lorsque la loupe est active, il reste possible de scroller dans l'image par [KeyToScroll] + bouton gauche.\par
+\par
+\cf2\b\f0\fs24 Selection\par
+\cf1\b0\f1\fs20\par
+La s\'e9lection est un TCustomControl qui forme une "couche" au-dessus de TZSImage. Le dessin du cadre de s\'e9lection n'affecte donc pas ni le Canvas ni le CanvasBitmap de ZSImage. Un popumenu sp\'e9cifique \'e0 la s\'e9lection peut \'eatre assign\'e9.\par
+Le cadre de s\'e9lection se construit avec clic gauche + move.\par
+Pour supprimer une s\'e9lection existante : Alt + clic droit , ou clic gauche en dehors du cadre.\par
+\par
+\b Activated\b0 : boolean : permet d'activer ou non la s\'e9lection \par
+\b Selection type\b0  :\par
+\tab stResizeable : dessin d'un cadre redimensionnable\par
+\tab stNotResizeable: dessin d'un cadre mais non redimensionnable\par
+\tab stMagnetic : une fois le cadre trac\'e9, il suit automatiquement le curseur de souris (pratique pour dessiner)\par
+\b SelectionForm\b0  : sfRectangle ou sfEllipse\par
+\b FrameWidth\b0  : \'e9paisseur en pixels du cadre de s\'e9lection.\par
+\b CursorOnDrawSel\b0  : curseur lorsque le cadre est en train d'\'eatre dessin\'e9.\par
+\b CursorOnMoveCell\b0  : curseur lors du d\'e9placement du cadre.\par
+\b SelectedRect\b0  : renvoie le rectangle s\'e9lectionn\'e9 ou permet de d\'e9finir un nouveau rectangle de s\'e9lection. (en coordonn\'e9es relatives \'e0 TZSImage).\par
+\b SelectionExist \b0 : renvoie true si une s\'e9lection existe.\par
+\b SelectionAvailable\b0 : renvoie true si une s\'e9lection existe et n'est pas en cours de redimensionnement. Si votre s\'e9lection sert p.ex \'e0 peindre, toujours tester cette propri\'e9t\'e9 auparavant.\par
+\b procedure Deselect\b0  : permet de supprimer toute s\'e9lection. \par
+\par
+Les \'e9v\'e9nements OnMouseDown, OnMouseMove, OnMouseUp sont accessibles par les \'e9v\'e9nements de TZSImage : \b OnSelectionMouseDown, OnSelectionMouseMove, OnSelectionMouseUp.\par
+\b0\par
+L'\'e9v\'e9nement de TZSImage \b OnSelectionChange\b0  est appel\'e9 lors d'une modification de la s\'e9lection (taille, emplacement, d\'e9selection) : utile pour afficher les coordonn\'e9es de la s\'e9lection.\par
+\par
+\cf2\b\f0\fs24 SlideShow\cf1\b0\f1\fs20\par
+TZSImage peut aussi servir pour un diaporama.\par
+La classe SlideShow contient un TStringList contenant les noms des fichiers avec un objet bitmap associ\'e9 (image originale sans stretching). L'acc\'e8s cette liste se fait par la propri\'e9t\'e9 \b List \b0 de SlideShow.\par
+Remarque : les fichiers ne sont ouverts et ne restent en m\'e9moire qu'\'e0 la demande (voir ShowImage).\par
+Remarque :l'objet bitmap de l'image demand\'e9e est transf\'e9r\'e9 \'e0 OrigBitmap de TZSImage. Les outils de navigation, loupe, s\'e9lection peuvent donc \'eatre utilis\'e9s \'e0 l'int\'e9rieur d'un diaporama (non li\'e9 \'e0 un Timer \'e9videmment). \par
+\par
+\b List.Assign\b0  : exemple :\par
+ZSImage.SlideShow.List.Assign(OpenDialog1.Files);\par
+\par
+\b List.Clear\b0  : vide la liste en supprimant tous les objets bitmap\par
+\b List.Delete\b0  : supprime une entr\'e9e et l'objet associ\'e9\par
+\b List.DeleteObject\b0  : ne supprime que l'objet, pas le nom du fichier.\par
+\par
+\b FEffect\b0  : effet de transition entre images\par
+\b FEffectOnShow\b0 : boolean : applique l'effet \'e0 l'apparition de la nouvelle image.\par
+\b FEffectOnHide\b0 : boolean : applique l'effet \'e0 la disparition de l'image actuelle.\par
+Si les deux sont true : il y a effet \'e0 la disparition et \'e0 l'apparition.\par
+Si les deux sont false : aucun effet de transition.\par
+\par
+\b EffectTimeOnShow\b0  : "ralentisseur" en millioni\'e8mes de seconde pour l'apparition.\par
+\b EffectTimeOnHide\b0  :  "ralentisseur" en millioni\'e8mes de seconde pour la disparition.\par
+\par
+\b procedure ShowImage(AIndex : integer; KeepNext: integer = 0; KeepPrevious: integer = 0);\par
+\b0 permet d'afficher l'image voulue. La propri\'e9t\'e9\b  ImageIndex \b0 renvoie l'index de l'image actuelle.\par
+\ul KeepNext \ulnone : \par
+\pard\li568    > 1 : demande de conserver en m\'e9moire x images suivant l'image actuelle. Si l'image suivant directement l'image actuelle n'est pas charg\'e9e, elle l'est dans un thread s\'e9par\'e9.\par
+= 0 : supprime toutes images suivantes (si bien s\'fbr elles ont \'e9t\'e9 charg\'e9es), ne charge pas dans un thread.\par
+- 1 : ne fait rien : aucune suppression d'images, pas de load dans le thread.\par
+\pard\ul KeepPrevious\ulnone  :\par
+\pard\li568 > 1 : demande de conserver en m\'e9moire x images pr\'e9c\'e9dant l'image actuelle.\par
+= 0 : supprime toutes les images pr\'e9c\'e9dentes, y compris l'image actuelle.\par
+= -1 : conserve toutes les images pr\'e9c\'e9dentes.\par
+\pard\par
+\ul exemple\ulnone  : ShowImage(5, 2, 3)\par
+affichage de l'image 5, demande de pr\'e9paration de l'image 6 et conservation de l'image 7, conservation des images 2,3,4,5. (soit 6 images au maximum en m\'e9moire).\par
+\par
+L'\'e9v\'e9nement\b  OnSlideShowEffect\b0  de ZSImage permet d'\'e9crire un "script" d'effets (choix de l'effet, r\'e9glage du temps...). Cet \'e9v\'e9nement est appel\'e9 par ShowImage.\par
+\par
+\b function RandomEffect\b0  : choix au hasard d'un effet.\par
+\b property LoadindFile\b0  : tant que loadingfile est = true, le thread de chargement d'image n'est pas termin\'e9. \par
+\par
+\par
+\cf0\b\f0\fs28 TMINNAVIGATION\par
+\cf1\b0\f1\fs20\par
+Composant contenant une miniature d'un TZSImage.\par
+Clic gauche + move pour naviguer dans l'image en fonction du facteur d'agrandissement (StretchFactor).\par
+\b propri\'e9t\'e9 FImage\b0  : lie le composant au TZSimage\par
+\b procedure UpdateMiniature\b0  : permet la mise \'e0 jour de l'image miniature. Celle-ci n'est pas automatiquement faite lors d'un changement d'image dans TZSImage.\par
+\b procedure Clear\b0  : supprime l'image miniature.\par
+ \f2\par
+\cf0\f3\par
+}
+ 
